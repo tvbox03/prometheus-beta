@@ -41,9 +41,18 @@ def stable_marriage(men_preferences: List[List[str]],
     men_names = [pref[0] for pref in men_preferences]
     women_names = [pref[0] for pref in women_preferences]
     
-    # Validate that names match
-    if set(men_names) != set(women_names):
-        raise ValueError("Names in preference lists do not match")
+    # Adjust preprocessing of names
+    men_set = set(men_names)
+    women_set = set(women_names)
+    
+    # Validate that all men are matched to women and vice versa
+    for pref_list in men_preferences[1:]:
+        if set(pref_list[1:]) != women_set:
+            raise ValueError("All women must appear in each man's preference list")
+    
+    for pref_list in women_preferences[1:]:
+        if set(pref_list[1:]) != men_set:
+            raise ValueError("All men must appear in each woman's preference list")
     
     # Create preference dictionaries for efficient lookup
     men_prefs = {men_names[i]: men_preferences[i][1:] for i in range(n)}

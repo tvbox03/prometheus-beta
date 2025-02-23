@@ -89,10 +89,9 @@ def test_stability_property():
         # Get man's ranking of current woman and other possible partners
         current_woman_rank = man_pref_list.index(woman)
         
-        # Get woman's current partner
-        current_man = result[man]
-        
         # Check if any preferred woman would prefer this man
+        man_current_woman_rank = woman_pref_list.index(man)
+        
         for potential_woman in man_pref_list[1:current_woman_rank+1]:
             # Find the index of this potential woman in preference lists
             potential_woman_pref_list = next(pref for pref in women_preferences if pref[0] == potential_woman)
@@ -100,9 +99,9 @@ def test_stability_property():
             # Check her current partner
             current_woman_partner = next(m for m, w in result.items() if w == potential_woman)
             
-            # Compare rankings 
-            woman_potential_rank = potential_woman_pref_list.index(man)
-            woman_current_partner_rank = potential_woman_pref_list.index(current_woman_partner)
+            # Compare rankings
+            woman_potential_man_rank = potential_woman_pref_list.index(man)
+            current_woman_partner_rank = potential_woman_pref_list.index(current_woman_partner)
             
-            # Assert that the current partner is preferred
-            assert woman_current_partner_rank < woman_potential_rank, f"Instability found between {man} and {potential_woman}"
+            # Assert that for a woman who might prefer this man, her current partner is more preferred
+            assert current_woman_partner_rank < woman_potential_man_rank, f"Instability found between {man} and {potential_woman}"

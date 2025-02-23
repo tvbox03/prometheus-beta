@@ -80,26 +80,31 @@ def test_stability_property():
     
     result = stable_marriage(men_preferences, women_preferences)
     
-    # Check stability
+    # Check stability by verifying no blocking pair exists
     for man, woman in result.items():
-        # Find man and woman's full preference lists
+        # Find man and woman's preference lists
         man_pref_list = next(pref for pref in men_preferences if pref[0] == man)
         woman_pref_list = next(pref for pref in women_preferences if pref[0] == woman)
         
-        # Get man's ranking of current woman
+        # Find the current match's ranking for both man and woman
         current_woman_rank = man_pref_list.index(woman)
+        current_man_rank = woman_pref_list.index(man)
         
-        # Check if any preferred woman would break the stability
-        for potential_woman in man_pref_list[1:current_woman_rank+1]:
-            # Find the index of this potential woman in preference lists
-            potential_woman_pref_list = next(pref for pref in women_preferences if pref[0] == potential_woman)
-            
-            # Check her current partner
-            current_woman_partner = next(m for m, w in result.items() if w == potential_woman)
-            
-            # Compare rankings
-            woman_potential_man_rank = potential_woman_pref_list.index(man)
-            current_woman_partner_rank = potential_woman_pref_list.index(current_woman_partner)
-            
-            # The current partner must be more preferred for stability
-            assert current_woman_partner_rank < woman_potential_man_rank, f"Potential instability between {man} and {potential_woman}"
+        # Check all preferred matches
+        for potential_man in man_pref_list[1:current_woman_rank+1]:
+            for potential_woman in women_preferences:
+                # Skip if this is not a valid potential match
+                if potential_woman[0] not in man_pref_list:
+                    continue
+                
+                # Find these people's current matches
+                current_potential_woman_match = next(m for m, w in result.items() if w == potential_woman[0])
+                
+                # Get their rankings
+                potential_man_rank = potential_woman.index(potential_man)
+                current_match_rank = potential_woman.index(current_potential_woman_match)
+                
+                # Check for potential blocking pair
+                assert not (potential_man_rank < current_match_rank and 
+                            man_pref_list.index(potential_woman[0]) < current_woman_rank), \
+                    f"Blocking pair found: {man} prefers {potential_woman[0]} and {potential_woman[0]} prefers {potential_man}"
